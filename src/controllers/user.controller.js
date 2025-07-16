@@ -138,7 +138,7 @@ return res.status(200).clearCookie("accesesToken",options)
 const refreshAccessToken=asyncHandler(async(req,res)=>{
     const incomingRefreshToken=req.cookie.refreshToken||req.body.refreshToken
 
-    if(incomingRefreshToken)
+    if(!incomingRefreshToken)
     {
         throw new ApiError(401,"unauthorized rerquest")
     }try{
