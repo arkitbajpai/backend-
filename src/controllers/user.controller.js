@@ -4,8 +4,7 @@ import {User} from "../models/user.model.js"
 import { uploadonCloudniary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
-import { access } from "fs"
-import { subscribe } from "diagnostics_channel"
+
 import mongoose from "mongoose"
 
 const generateAccessTokenAndRefreshTokens=async(userId)=>{
@@ -347,7 +346,11 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
             }
          }
         ])
+        return res.status(200).json( new ApiResponse(
+            200,
+            user[0].watchHistory,"watch history successfully"
+        ))
     })
 
 export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword, getCurrentUsers,updateAccountDetails,
-    updateUserAvatar,updateUserCoverImage, }
+    updateUserAvatar,updateUserCoverImage,getWatchHistory }
