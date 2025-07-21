@@ -353,4 +353,4 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
     })
 
 export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword, getCurrentUsers,updateAccountDetails,
-    updateUserAvatar,updateUserCoverImage,getWatchHistory }
+    updateUserAvatar,updateUserCoverImage,getWatchHistory, getUserChannelProfile }
