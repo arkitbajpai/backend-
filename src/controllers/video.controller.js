@@ -71,12 +71,55 @@ const getVideoById = asyncHandler(async (req, res) => {
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
-
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video ID")
+    }
+     const videoToBeUpdated = await Video.findById(videoId)
+    if(!videoToBeUpdated) {
+        throw new ApiError(404, "Video not found")
+    }
+    if(videoToBeUpdated.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this video")
+    }
+      const { title, description,thumbnail} = req.body
+    if([title, description].some((field) => field?.trim() === "")) {
+        throw new ApiError(400, "Title and description are required")
+    }
+    if(thumbnail){
+        const thumbnailLocalPath = req.files?.thumbnail[0]?.path
+        if(!thumbnailLocalPath) {
+            throw new ApiError(400, "Thumbnail file path is not found")
+        }
+        const thumbnailFile = await uploadOnCloudinary(thumbnailLocalPath)
+        videoToBeUpdated.thumbnail = thumbnailFile.url
+    }
+    videoToBeUpdated.title = title
+    videoToBeUpdated.description = description
+    const updatedVideo = await videoToBeUpdated.save()
+    if(!updatedVideo) {
+        throw new ApiError(500, "Failed to update video")
+    }   
+    return res.status(200).json(new ApiResponse(200, updatedVideo, "Video updated successfully"))
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
+    if(!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+    const videoToBeDeleted = await Video.findById(videoId)
+    if(!videoToBeDeleted) {
+        throw new ApiError(404, "Video not found")
+    }
+    if(videoToBeDeleted.owner.toString()!== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to delete this video")
+    }
+      const result = await videoToBeDeleted.deleteOne()
+    if(!result) {
+        throw new ApiError(500, "Failed to delete video")
+    }
+    return res.status(200).json(new ApiResponse(200,{}, "Video deleted successfully"))
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
