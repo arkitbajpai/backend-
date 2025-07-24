@@ -4,7 +4,7 @@ import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadonCloudniary} from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -25,7 +25,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
             }
         })
     }
-    pipeline.push({isPublished: true})
+   pipeline.push({ $match: { isPublished: true } }) 
+
     
   if (sortBy && sortType) {
     pipeline.push({
@@ -79,7 +80,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     {
         throw new ApiError(400, "Title and description is required")
     }
-    const videoLocalPath= req.files?.videoFiles[0]?.path;
+    const videoLocalPath= req.files?.videoFile[0]?.path;
     const thumbnailLocalPath=req.files?.thumbnail[0]?.path;
 
     if(!videoLocalPath)
@@ -93,14 +94,14 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400,"thumbnail file path is not found")
     }
     // TODO: upload video and thumbnail to cloudinary
-    const videoFile = await uploadOnCloudinary(videoLocalPath);
+    const videoFile = await uploadonCloudniary(videoLocalPath);
 
-    const thumbnailFile = await uploadOnCloudinary(thumbnailLocalPath);
+    const thumbnailFile = await uploadonCloudniary(thumbnailLocalPath);
       
   const video= await Video.create({
     title:title,
     description:description,
-    video:videoFile.url,
+    videoFile:videoFile.url,
     thumbnail:thumbnailFile.url,
     userId: req.user?._id,
     duration: videoFile?.duration,
@@ -111,7 +112,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400,"The video is not upladed on mongo DB")
   }
 
-  return res.status.json( new ApiResponse(200,video, "The video file is uploded succesfully"))
+  return res.status(200).json( new ApiResponse(200,video, "The video file is uploded succesfully"))
 
 
 
@@ -120,7 +121,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
-    const video = await Video.findById(videoId).populate("userId")
+    const video = await Video.findById(videoId)
     if(!video)
         {
             throw new ApiError(404, "Video not found")
@@ -150,7 +151,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         if(!thumbnailLocalPath) {
             throw new ApiError(400, "Thumbnail file path is not found")
         }
-        const thumbnailFile = await uploadOnCloudinary(thumbnailLocalPath)
+        const thumbnailFile = await uploadonCloudniary(thumbnailLocalPath)
         videoToBeUpdated.thumbnail = thumbnailFile.url
     }
     videoToBeUpdated.title = title
@@ -159,6 +160,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     if(!updatedVideo) {
         throw new ApiError(500, "Failed to update video")
     }   
+    
     return res.status(200).json(new ApiResponse(200, updatedVideo, "Video updated successfully"))
 })
 
