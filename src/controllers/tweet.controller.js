@@ -36,7 +36,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
     {
         throw new ApiError(400, "Invalid user ID");
     }
-    const user = await user.findById(userId).select("-password -refreshToken");
+    const user = await User.findById(userId).select("-password -refreshToken");
     if(!user){
         throw new ApiError(404, "User not found");
     }

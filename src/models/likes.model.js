@@ -19,4 +19,4 @@ likedBy:{
 
 })
 
-export const likes = mongoose.model('likes', likesSchema);
+export const Like = mongoose.model('likes', likesSchema);
