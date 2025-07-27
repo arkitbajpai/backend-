@@ -36,6 +36,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const {channelId} = req.params
+    if(!isValidObjectId(channelId)){
+        throw new ApiError(400, "Invalid channel ID");
+    }
+    const channel = await User.findById(channelId).select("-password -refreshToken");
+    if(!channel){
+        throw new ApiError(404, "Channel not found");
+    }
+    
 })
 
 // controller to return channel list to which user has subscribed
