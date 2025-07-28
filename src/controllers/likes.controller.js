@@ -65,7 +65,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if(!tweet){
         throw new ApiError(404, "Tweet not found");
     }
-    
+
     const existingLike = await Like.findOne({
         tweet: tweetId,
         likedBy: req.user._id
@@ -87,6 +87,36 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
+    const LikedVideos= await Like.aggregate([
+        {
+            $match:new mongoose.Types.ObjectId(req.user._id)
+        },{
+            $Lookup:{
+                from:"videos",
+                localFeld:"video",
+                foreignField:"_id",
+                as:"videoDetails"
+            }
+        },
+        {
+            $unwind:"$videoDetails"
+        },
+        {
+            $project:{
+                _id:0,
+                videoId:"$videoDetails._id",
+                title:"$videoDetails.title",
+                
+            }
+        }
+
+    ])
+    if(!LikedVideos || LikedVideos.length === 0){
+        throw new ApiError(404, "No liked videos found");
+    }
+    return res.status(200).json(new ApiResponse(200, LikedVideos, "Liked videos fetched successfully"));
+
+
 })
 
 export {
