@@ -58,7 +58,30 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 const toggleTweetLike = asyncHandler(async (req, res) => {
     const {tweetId} = req.params
     //TODO: toggle like on tweet
+    if(isValidObjectId(tweetId)){
+        throw new ApiError(400, "Invalid tweet ID");
+    }
+    const tweet = await Tweet.findById(tweetId);
+    if(!tweet){
+        throw new ApiError(404, "Tweet not found");
+    }
     
+    const existingLike = await Like.findOne({
+        tweet: tweetId,
+        likedBy: req.user._id
+    });
+    if(existingLike){
+        await existingLike.deleteOne();
+        return res.status(200).json(new ApiResponse(200, {}, "Like removed successfully"));
+    }
+    const tweetLike = await Like.create({
+        tweet: tweetId,
+        likedBy: req.user._id
+    });
+    if(!tweetLike){
+        throw new ApiError(500, "Failed to like tweet");
+    }
+    return res.status(200).json(new ApiResponse(201, tweetLike, "Tweet liked successfully"));
 }
 )
 
