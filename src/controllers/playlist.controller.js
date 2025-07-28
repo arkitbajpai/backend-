@@ -1,6 +1,6 @@
 
 import mongoose, {isValidObjectId} from "mongoose"
-import {playlist} from "../models/playlist.model.js"
+import {playlist as Playlist} from "../models/playlist.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -70,7 +70,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid playlist ID");
     }
     
-    const playlist =await Playlist.aggregate[(
+    const playlist =await Playlist.aggregate([
         {
             $match:{_id: new mongoose.Types.ObjectId(playlistId)
                 },
@@ -82,7 +82,9 @@ const getPlaylistById = asyncHandler(async (req, res) => {
                 as:"videos"
                 }
         }
-    )]
+    ])
+    console.log(playlistId);
+    console.log(playlist);
     if(!playlist || playlist.length === 0){
         throw new ApiError(404, "Playlist not found");
     }
@@ -98,7 +100,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid video ID");
     }
     const playlist = await Playlist.findById(playlistId);
-    if(playlist.owner!== req.user._id.toString()){
+    if(playlist.owner.toString()!== req.user._id.toString()){
         throw new ApiError(403, "You are not authorized to add videos to this playlist");
     }
     if(!playlist){
