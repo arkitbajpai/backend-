@@ -24,3 +24,4 @@ export const verifyjwt=asyncHandler(async(req,res,next)=>{
        
  }
 })
+export default verifyjwt;
