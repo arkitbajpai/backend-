@@ -87,30 +87,73 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
-    const LikedVideos= await Like.aggregate([
-        {
-             $match: { user: new mongoose.Types.ObjectId(req.user._id) }
-        },{
-            $lookup:{
-                from:"videos",
-                localField:"video",
-                foreignField:"_id",
-                as:"videoDetails"
-            }
+     // Should be an ObjectId
+     
+     const userId = req.user._id;
+    if(!isValidObjectId(userId)){
+        throw new ApiError(400, "Invalid user ID");
+    }
+     const LikedVideos = await Like.aggregate([
+    {
+      $match: {
+        likedBy: new mongoose.Types.ObjectId(req.user?._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "video",
+        foreignField: "_id",
+        as: "likedVideo",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "ownerDetails",
+            },
+          },
+          {
+            $unwind: "$ownerDetails",
+          },
+        ],
+      },
+    },
+    {
+      $unwind: "$likedVideo",
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        likedVideo: {
+          _id: 1,
+          videoFile: 1,
+          thumbnail: 1,
+          owner: 1,
+          title: 1,
+          description: 1,
+          views: 1,
+          duration: 1,
+          createdAt: 1,
+          isPublished: 1,
+          ownerDetails: {
+            username: 1,
+            fullName: 1,
+            avatar: 1,
+          },
         },
-        {
-            $unwind:"$videoDetails"
-        },
-        {
-            $project:{
-                _id:0,
-                videoId:"$videoDetails._id",
-                title:"$videoDetails.title",
-                
-            }
-        }
+      },
+    },
+  ]);
 
-    ])
+
+   
     if(!LikedVideos || LikedVideos.length === 0){
         throw new ApiError(404, "No liked videos found");
     }
