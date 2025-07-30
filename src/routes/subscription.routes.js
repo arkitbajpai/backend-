@@ -14,7 +14,7 @@ router.use(verifyjwt);
 //apply verifyJWT to ll routes in this file
 
 router
-  .route("/c/:channelId")
+.route("/c/:channelId")
   .get(getSubscribedChannels)
   .post(toggleSubscription);
 
