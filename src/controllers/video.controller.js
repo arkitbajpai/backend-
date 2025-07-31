@@ -75,6 +75,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
+    if(isValidObjectId(req.user._id) === false){
+        throw new ApiError(400, "Invalid user ID")
+    }
     // TODO: get video, upload to cloudinary, create video
     if([title,description].some((field)=>field?.trim()===""))
     {
@@ -103,7 +106,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     description:description,
     videoFile:videoFile.url,
     thumbnail:thumbnailFile.url,
-    userId: req.user?._id,
+    owner: req.user?._id,
     duration: videoFile?.duration,
     isPublished:false,
   });
@@ -188,6 +191,9 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     if(!isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID")
+    }
+    if(!req.user || !req.user._id) {
+        throw new ApiError(401, "Unauthorized")
     }
     const video =await Video.findOne({_id: videoId, owner: req.user._id})
     if(!video) {
