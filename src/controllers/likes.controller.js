@@ -155,7 +155,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
 
    
     if(!LikedVideos || LikedVideos.length === 0){
-        throw new ApiError(404, "No liked videos found");
+        throw new ApiError(400, "No liked videos found");
     }
     return res.status(200).json(new ApiResponse(200, LikedVideos, "Liked videos fetched successfully"));
 
