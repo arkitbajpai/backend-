@@ -178,7 +178,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found")
     }
     if(videoToBeDeleted.owner.toString()!== req.user._id.toString()) {
-        throw new ApiError(403, "You are not authorized to delete this video")
+        throw new ApiError(400, "You are not authorized to delete this video")
     }
       const result = await videoToBeDeleted.deleteOne()
     if(!result) {
