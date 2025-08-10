@@ -193,7 +193,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid video ID")
     }
     if(!req.user || !req.user._id) {
-        throw new ApiError(401, "Unauthorized")
+        throw new ApiError(400, "Unauthorized")
     }
     const video =await Video.findOne({_id: videoId, owner: req.user._id})
     if(!video) {
