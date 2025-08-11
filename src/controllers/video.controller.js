@@ -140,10 +140,10 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
      const videoToBeUpdated = await Video.findById(videoId)
     if(!videoToBeUpdated) {
-        throw new ApiError(404, "Video not found")
+        throw new ApiError(400, "Video not found")
     }
     if(videoToBeUpdated.owner.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "You are not authorized to update this video")
+        throw new ApiError(400, "You are not authorized to update this video")
     }
       const { title, description,thumbnail} = req.body
     if([title, description].some((field) => field?.trim() === "")) {
