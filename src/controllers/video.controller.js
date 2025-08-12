@@ -161,7 +161,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     videoToBeUpdated.description = description
     const updatedVideo = await videoToBeUpdated.save()
     if(!updatedVideo) {
-        throw new ApiError(500, "Failed to update video")
+        throw new ApiError(400, "Failed to update video")
     }   
     
     return res.status(200).json(new ApiResponse(200, updatedVideo, "Video updated successfully"))
@@ -175,7 +175,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     }
     const videoToBeDeleted = await Video.findById(videoId)
     if(!videoToBeDeleted) {
-        throw new ApiError(404, "Video not found")
+        throw new ApiError(400, "Video not found")
     }
     if(videoToBeDeleted.owner.toString()!== req.user._id.toString()) {
         throw new ApiError(400, "You are not authorized to delete this video")
@@ -197,7 +197,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     }
     const video =await Video.findOne({_id: videoId, owner: req.user._id})
     if(!video) {
-        throw new ApiError(404, "Video not found or you are not authorized to update this video")
+        throw new ApiError(400, "Video not found or you are not authorized to update this video")
     }
     video.isPublished = !video.isPublished
     const updatedVideo = await video.save()
