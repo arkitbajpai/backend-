@@ -49,7 +49,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
         likedBy: req.user._id
     })
     if(!commentLike){
-        throw new ApiError(500, "Failed to like comment");
+        throw new ApiError(400, "Failed to like comment");
     }
     return res.status(201).json(new ApiResponse(201, commentLike, "Comment liked successfully"));
 
