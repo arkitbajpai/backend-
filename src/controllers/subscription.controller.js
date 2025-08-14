@@ -42,7 +42,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     }
     const channel = await User.findById(subscriberId)
     if(!channel){
-        throw new ApiError(404, "Channel not found");
+        throw new ApiError(400, "Channel not found");
     }
     const subscribers=await Subscription.aggregate([{
         $match:{
